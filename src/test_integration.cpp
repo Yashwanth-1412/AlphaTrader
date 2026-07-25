@@ -132,26 +132,12 @@ int main(int argc, char** argv) {
     const int gateway_port = 11000;
     const std::string inc_mcast = "127.0.0.1";
     const int inc_port = 21001;
-    const std::string snap_mcast = "127.0.0.1";
-    const int snap_port = 21002;
+    const int snapshot_tcp_port = 21003;
 
     const char* ne_path = std::getenv("NANOEXCHANGE_BIN");
     std::string nanoexchange_bin = ne_path ? ne_path : "../../NanoExchange/build/NanoExchange";
 
     std::cout << "\n═══ AlphaTrader Comprehensive Integration Test ═══\n\n";
-
-    // ── Snapshot listener (bind before fork to catch initial snapshot) ──
-    int snap_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (snap_fd >= 0) {
-        struct sockaddr_in addr{};
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(snap_port);
-        addr.sin_addr.s_addr = htonl(INADDR_ANY);
-        if (bind(snap_fd, (struct sockaddr*)&addr, sizeof(addr)) == 0) {
-            struct timeval tv{4, 0};
-            setsockopt(snap_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-        }
-    }
 
     // ── Start NanoExchange ──────────────────────────────────────
     pid_t ne_pid = fork();
@@ -161,12 +147,12 @@ int main(int argc, char** argv) {
         close(devnull);
         std::string gport = std::to_string(gateway_port);
         std::string iport = std::to_string(inc_port);
-        std::string sport = std::to_string(snap_port);
+        std::string snapshot_tcp = std::to_string(snapshot_tcp_port);
         execlp(nanoexchange_bin.c_str(), nanoexchange_bin.c_str(),
                 gateway_iface.c_str(), gport.c_str(),
                 inc_mcast.c_str(), iport.c_str(),
-                snap_mcast.c_str(), sport.c_str(),
-                mcast_iface.c_str(), "1", "2", "3", (char*)nullptr);
+                snapshot_tcp.c_str(), mcast_iface.c_str(),
+                "1", "2", "3", (char*)nullptr);
         std::cerr << "execlp(" << nanoexchange_bin << ") failed: " << strerror(errno) << "\n";
         _exit(1);
     }
@@ -180,46 +166,11 @@ int main(int argc, char** argv) {
     }
     std::cout << "NanoExchange ready.\n";
 
-    // ── Check Snapshot Feed ────────────────────────────────────
-    // NanoExchange publishes snapshot on startup: START(0xBBBB), CLEAR(0xCCCC)xN, END(0xEEEE)
-    std::cout << "─── Snapshot Feed ───\n";
-    {
-        char snap_buf[4096];
-        ssize_t n = recv(snap_fd, snap_buf, sizeof(snap_buf), 0);
-        check("received snapshot data (" + std::to_string(n) + " bytes)", n > 0);
-        if (n > 0) {
-            bool got_start = false, got_end = false;
-            int clear_count = 0;
-            for (ssize_t pos = 0; pos + 3 <= n; ) {
-                const char* p = snap_buf + pos; // no seq prefix in snapshot
-                if (p[0] == 'D') {
-                    uint16_t locate = (uint8_t(p[1]) << 8) | uint8_t(p[2]);
-                    if (locate == 0xBBBB) got_start = true;
-                    else if (locate == 0xCCCC) ++clear_count;
-                    else if (locate == 0xEEEE) got_end = true;
-                }
-                // Packed struct sizes: OrderDelete=19, AddOrder=36, OrderExecuted=31, OrderCancel=23
-                if (p[0] == 'A')      { pos += 36; }
-                else if (p[0] == 'E') { pos += 31; }
-                else if (p[0] == 'X') { pos += 23; }
-                else if (p[0] == 'D') { pos += 19; }
-                else { pos = n; break; } // unknown, abort
-            }
-            check("snapshot START marker (0xBBBB)", got_start);
-            check("snapshot END marker (0xEEEE)", got_end);
-            check("snapshot has " + std::to_string(clear_count) + " CLEAR markers",
-                  clear_count >= 1);
-            if (g_verbose)
-                std::cout << "  parsed: START ✓  CLEAR=" << clear_count << "  END ✓\n";
-        }
-        close(snap_fd);
-    }
-
     // ── Consumer ────────────────────────────────────────────────
     quantlink::Logger logger(8 * 1024 * 1024, "integration_test.log", -1);
     quantlink::SPSCQueue<MarketUpdate> md_queue(1024);
     MarketDataConsumer consumer(&md_queue, &logger,
-                                mcast_iface, "127.0.0.1", 21003, inc_mcast, inc_port);
+                                mcast_iface, "127.0.0.1", snapshot_tcp_port, inc_mcast, inc_port);
     consumer.start(-1);
     for (int i = 0; i < 20 && !market_data_synchronized.load(std::memory_order_acquire); ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
