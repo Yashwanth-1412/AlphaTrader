@@ -1,0 +1,70 @@
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+# Line length - keep very high to avoid breaking
+ColumnLimit: 200
+
+# Braces - attach to same line (your style)
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+
+# Enums - one per line (your style)
+AllowShortEnumsOnASingleLine: false
+
+# Pointers/references - attach to type
+PointerAlignment: Left
+
+# Spacing
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
+
+# Includes
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+# Alignment - align consecutive declarations/assignments
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+AlignOperands: Align
+
+# Constructor initializers
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: Never
+
+# Templates
+AlwaysBreakTemplateDeclarations: Yes
+
+# Namespaces
+NamespaceIndentation: None
+CompactNamespaces: false
+
+# Other
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+FixNamespaceComments: true
+ReflowComments: true
+InsertTrailingCommas: None
