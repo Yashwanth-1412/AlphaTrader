@@ -93,14 +93,56 @@ int main() {
     const std::string iface = "lo";
     const std::string inc_ip = "127.0.0.1";
     const int inc_port = 21003;
-    const std::string snap_ip = "127.0.0.1";
-    const int snap_port = 21004;
 
     quantlink::Logger logger(8 * 1024 * 1024, "snapshot_test.log", -1);
     quantlink::SPSCQueue<MarketUpdate> md_queue(1024);
 
+    const auto initial_start = make_snap_order_delete(0xBBBB, 0);
+    const auto initial_clear = make_snap_order_delete(0xCCCC, 0);
+    const auto initial_end = make_snap_order_delete(0xEEEE, 0);
+    const auto snap_start = make_snap_order_delete(0xBBBB, 7);
+    const auto snap_clear = make_snap_order_delete(0xCCCC, 0);
+    const auto snap_add = make_snap_add_order(200, 'B', 500, 1200000, 0);
+    const auto snap_end = make_snap_order_delete(0xEEEE, 7);
+    std::atomic<bool> send_recovery_snapshot{false};
+
+    int snapshot_server = socket(AF_INET, SOCK_STREAM, 0);
+    int reuse = 1;
+    setsockopt(snapshot_server, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    sockaddr_in snapshot_addr{};
+    snapshot_addr.sin_family = AF_INET;
+    snapshot_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    snapshot_addr.sin_port = htons(21003);
+    bind(snapshot_server, reinterpret_cast<sockaddr*>(&snapshot_addr), sizeof(snapshot_addr));
+    listen(snapshot_server, 2);
+    std::thread snapshot_thread([&]() {
+        for (int request_number = 0; request_number < 2; ++request_number) {
+            const int client = accept(snapshot_server, nullptr, nullptr);
+            char request = 0;
+            recv(client, &request, sizeof(request), 0);
+            const auto send_message = [client](const auto& message) {
+                send(client, message.data(), message.size(), MSG_NOSIGNAL);
+            };
+            if (request_number == 0) {
+                send_message(initial_start);
+                send_message(initial_clear);
+                send_message(initial_end);
+            } else {
+                while (!send_recovery_snapshot.load(std::memory_order_acquire)) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+                send_message(snap_start);
+                send_message(snap_clear);
+                send_message(snap_add);
+                send_message(snap_end);
+            }
+            close(client);
+        }
+        close(snapshot_server);
+    });
+
     MarketDataConsumer consumer(&md_queue, &logger,
-                                iface, snap_ip, snap_port, inc_ip, inc_port);
+                                iface, "127.0.0.1", 21003, inc_ip, inc_port);
     consumer.start(-1);
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -116,13 +158,7 @@ int main() {
         return out;
     };
 
-    // Establish the initial authoritative state before accepting incrementals.
-    auto initial_start = make_snap_order_delete(0xBBBB, 0);
-    auto initial_clear = make_snap_order_delete(0xCCCC, 0);
-    auto initial_end = make_snap_order_delete(0xEEEE, 0);
-    udp_send(snap_ip, snap_port, initial_start.data(), initial_start.size());
-    udp_send(snap_ip, snap_port, initial_clear.data(), initial_clear.size());
-    udp_send(snap_ip, snap_port, initial_end.data(), initial_end.size());
+    // The consumer requests the initial authoritative snapshot over TCP.
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     drain();
     check("initial snapshot synchronizes market data",
@@ -162,19 +198,7 @@ int main() {
     // ═══════════════════════════════════════════════════════════
     std::cout << "─── Phase 3: Snapshot delivery ───\n";
 
-    // Snapshot messages arrive as raw ITCH structs (no seq prefix)
-    auto snap_start = make_snap_order_delete(0xBBBB, 7);  // START, last_inc_seq = 7
-    auto snap_clear = make_snap_order_delete(0xCCCC, 0);   // CLEAR ticker=0
-    auto snap_add   = make_snap_add_order(200, 'B', 500, 1200000, 0); // resting order
-    auto snap_end   = make_snap_order_delete(0xEEEE, 7);  // END, resume_seq = 7
-
-    udp_send(snap_ip, snap_port, snap_start.data(), snap_start.size());
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    udp_send(snap_ip, snap_port, snap_clear.data(), snap_clear.size());
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    udp_send(snap_ip, snap_port, snap_add.data(), snap_add.size());
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    udp_send(snap_ip, snap_port, snap_end.data(), snap_end.size());
+    send_recovery_snapshot.store(true, std::memory_order_release);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     auto s3 = drain();
@@ -216,6 +240,7 @@ int main() {
 
     // ── Cleanup ─────────────────────────────────────────────
     consumer.stop();
+    snapshot_thread.join();
 
     std::cout << "\n═══ Results: " << (failed == 0 ? "ALL PASS" : "SOME FAILED")
               << "  (" << passed << " passed, " << failed << " failed) ═══\n";

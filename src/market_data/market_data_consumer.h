@@ -24,7 +24,7 @@ public:
         quantlink::SPSCQueue<MarketUpdate>* market_updates,
         quantlink::Logger* logger,
         const std::string& iface,
-        const std::string& snapshot_ip, int snapshot_port,
+        const std::string& snapshot_tcp_ip, int snapshot_tcp_port,
         const std::string& incremental_ip, int incremental_port);
 
     MarketDataConsumer() = delete;
@@ -51,6 +51,7 @@ private:
     auto startSnapshotSync() noexcept -> void;
     auto finishSnapshotSync(SeqNum resume_seq) noexcept -> void;
     auto abortSnapshotSync() noexcept -> void;
+    auto readSnapshotTcp() noexcept -> void;
 
     auto sendToLogger(const char* fmt, auto&&... args) noexcept -> void {
         logger_->log(fmt, __FILE__, __LINE__, __FUNCTION__,
@@ -70,11 +71,12 @@ private:
     bool snapshot_have_start_ = false;
 
     quantlink::McastSocket incremental_mcast_socket_{*logger_};
-    quantlink::McastSocket snapshot_mcast_socket_{*logger_};
+    int snapshot_tcp_fd_ = -1;
+    std::vector<char> snapshot_tcp_buffer_;
 
     const std::string iface_;
-    const std::string snapshot_ip_;
-    const int snapshot_port_;
+    const std::string snapshot_tcp_ip_;
+    const int snapshot_tcp_port_;
     const std::string incremental_ip_;
     const int incremental_port_;
 

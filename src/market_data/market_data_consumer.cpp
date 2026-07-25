@@ -6,13 +6,13 @@ MarketDataConsumer::MarketDataConsumer(
     quantlink::SPSCQueue<MarketUpdate>* market_updates,
     quantlink::Logger* logger,
     const std::string& iface,
-    const std::string& snapshot_ip, int snapshot_port,
+    const std::string& snapshot_tcp_ip, int snapshot_tcp_port,
     const std::string& incremental_ip, int incremental_port)
     : incoming_md_updates_(market_updates),
       logger_(logger),
       iface_(iface),
-      snapshot_ip_(snapshot_ip),
-      snapshot_port_(snapshot_port),
+       snapshot_tcp_ip_(snapshot_tcp_ip),
+       snapshot_tcp_port_(snapshot_tcp_port),
        incremental_ip_(incremental_ip),
        incremental_port_(incremental_port) {
 
@@ -31,7 +31,6 @@ MarketDataConsumer::MarketDataConsumer(
                + std::to_string(incremental_mcast_socket_.socket_fd_) + " error: " + std::string(std::strerror(errno)));
     }
 
-    snapshot_mcast_socket_.recv_callback_ = recv_cb;
 }
 
 auto MarketDataConsumer::start(int core_id) -> void {
@@ -52,9 +51,7 @@ auto MarketDataConsumer::run() noexcept -> void {
 
     while (run_.load(std::memory_order_acquire)) {
         incremental_mcast_socket_.sendAndRecv();
-        if (in_recovery_.load(std::memory_order_relaxed) && snapshot_mcast_socket_.socket_fd_ != -1) {
-            snapshot_mcast_socket_.sendAndRecv();
-        }
+        if (in_recovery_.load(std::memory_order_relaxed)) readSnapshotTcp();
     }
 
     sendToLogger("MarketDataConsumer::run() exited.\n");
@@ -63,40 +60,6 @@ auto MarketDataConsumer::run() noexcept -> void {
 auto MarketDataConsumer::recvCallback(quantlink::McastSocket* socket) noexcept -> void {
     sendToLogger("MarketDataConsumer::recvCallback() fd=% bytes=%\n",
                  socket->socket_fd_, socket->next_rcv_valid_index_);
-
-    const bool is_snapshot = (socket->socket_fd_ == snapshot_mcast_socket_.socket_fd_);
-
-    if (UNLIKELY(is_snapshot && !in_recovery_.load(std::memory_order_relaxed))) {
-        socket->next_rcv_valid_index_ = 0;
-        sendToLogger("MarketDataConsumer::recvCallback() ignoring unexpected snapshot message.\n");
-        return;
-    }
-
-    if (is_snapshot) {
-        // Snapshot feed: NO seq prefix, just raw ITCH structs
-        if (socket->next_rcv_valid_index_ < 1) return;
-
-        std::size_t i = 0;
-        while (i + 1 <= socket->next_rcv_valid_index_) {
-            const char* data = socket->inbound_data_.data() + i;
-            const std::size_t remaining = socket->next_rcv_valid_index_ - i;
-
-            MarketUpdate update;
-            if (decoder_.decodeSnapshot(std::span<const char>(data, remaining), update)) {
-                processSnapshot(update);
-                i += decoder_.lastDecodedSize();
-            } else {
-                break;
-            }
-        }
-
-        if (i > 0) {
-            std::memmove(socket->inbound_data_.data(), socket->inbound_data_.data() + i,
-                         socket->next_rcv_valid_index_ - i);
-            socket->next_rcv_valid_index_ -= i;
-        }
-        return;
-    }
 
     // Incremental feed: [8-byte seq] [ITCH struct]
     if (socket->next_rcv_valid_index_ < sizeof(SeqNum) + 1) {

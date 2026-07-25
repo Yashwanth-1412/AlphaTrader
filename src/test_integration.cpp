@@ -1,5 +1,6 @@
 #include "market_data/itch_decoder.h"
 #include "market_data/market_data_consumer.h"
+#include "market_data/market_data_sync.h"
 #include "market_order_book.h"
 
 #include "QuantLink/Lib/logging/logger.h"
@@ -218,10 +219,13 @@ int main(int argc, char** argv) {
     quantlink::Logger logger(8 * 1024 * 1024, "integration_test.log", -1);
     quantlink::SPSCQueue<MarketUpdate> md_queue(1024);
     MarketDataConsumer consumer(&md_queue, &logger,
-                                mcast_iface, snap_mcast, snap_port, inc_mcast, inc_port);
+                                mcast_iface, "127.0.0.1", 21003, inc_mcast, inc_port);
     consumer.start(-1);
-    // The consumer requires the periodic authoritative snapshot before live updates.
-    std::this_thread::sleep_for(std::chrono::milliseconds(10500));
+    for (int i = 0; i < 20 && !market_data_synchronized.load(std::memory_order_acquire); ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    check("TCP snapshot synchronized market data",
+          market_data_synchronized.load(std::memory_order_acquire));
 
     // Helper: drain queue
     auto drain_queue = [&]() -> std::vector<MarketUpdate> {
