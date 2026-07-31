@@ -404,7 +404,7 @@ int main(int argc, char** argv) {
         book.applyUpdate(cancel);
 
         BBO bbo3 = book.getBBO();
-        check("after cancel no ask (price=0)",  bbo3.ask_price == 0);
+        check("after cancel no ask (price=0)",  bbo3.ask_price == Price_INVALID);
         check("after cancel no ask (qty=0)",    bbo3.ask_qty == 0);
     }
 

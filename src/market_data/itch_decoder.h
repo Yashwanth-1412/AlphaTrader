@@ -5,6 +5,7 @@
 
 #include <span>
 #include <unordered_map>
+#include <vector>
 
 namespace alphatrader {
 
@@ -19,7 +20,7 @@ public:
     auto decodeSnapshot(std::span<const char> wire, MarketUpdate& out) noexcept -> bool;
     auto reset() noexcept -> void;
 
-    [[nodiscard]] auto trackedOrders() const noexcept -> size_t { return order_ref_map_.size(); }
+    [[nodiscard]] auto trackedOrders() const noexcept -> size_t { return tracked_order_count_; }
     [[nodiscard]] auto lastDecodedSize() const noexcept -> size_t { return last_decoded_size_; }
 
 private:
@@ -38,7 +39,8 @@ private:
     auto decodeOrderDelete(const quantlink::itch::OrderDelete* msg, MarketUpdate& out) noexcept -> bool;
     auto decodeOrderReplace(const quantlink::itch::OrderReplace* msg, MarketUpdate& out) noexcept -> bool;
 
-    std::unordered_map<OrderId, OrderState> order_ref_map_;
+    std::unordered_map<TickerId, std::vector<OrderState>> order_ref_map_;
+    size_t tracked_order_count_ = 0;
     size_t last_decoded_size_ = 0;
 };
 

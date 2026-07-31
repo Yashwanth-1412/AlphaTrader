@@ -40,7 +40,8 @@ auto MarketOrderBook::linkOrder(PriceLevel* level, BookOrder* order) noexcept ->
     if (UNLIKELY(level->head == nullptr)) {
         level->head = order;
         level->tail = order;
-    } else {
+    }
+    else {
         order->prev = level->tail;
         level->tail->next = order;
         level->tail = order;
@@ -65,9 +66,9 @@ auto MarketOrderBook::unlinkOrder(PriceLevel* level, BookOrder* order) noexcept 
 }
 
 auto MarketOrderBook::updateBBO() noexcept -> void {
-    bbo_.bid_price = 0;
+    bbo_.bid_price = Price_INVALID;
     bbo_.bid_qty = 0;
-    bbo_.ask_price = 0;
+    bbo_.ask_price = Price_INVALID;
     bbo_.ask_qty = 0;
 
     if (!bids_.empty()) {

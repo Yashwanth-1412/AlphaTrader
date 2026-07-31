@@ -7,10 +7,8 @@ namespace alphatrader {
 using namespace quantlink::itch;
 
 namespace {
-auto tickerId(const char* stock) noexcept -> TickerId {
-    uint64_t value = 0;
-    std::memcpy(&value, stock, sizeof(value));
-    return static_cast<TickerId>(value);
+auto stockLocate(uint16_t locate) noexcept -> TickerId {
+    return static_cast<TickerId>(swap16(locate));
 }
 }
 
@@ -22,7 +20,7 @@ auto ItchDecoder::decode(std::span<const char> wire, MarketUpdate& out) noexcept
 
     SeqNum seq = 0;
     std::memcpy(&seq, wire.data(), sizeof(SeqNum));
-    out.seq_num = seq;
+    out.seq_num = swap64(seq);
 
     const char msg_type = wire[sizeof(SeqNum)];
 
@@ -128,9 +126,12 @@ auto ItchDecoder::decodeAddOrder(const AddOrder* msg, MarketUpdate& out) noexcep
     out.qty = msg->get_shares();
     out.order_ref = msg->get_ref();
     out.new_ref = 0;
-    out.ticker_id = tickerId(msg->stock);
+    out.ticker_id = stockLocate(msg->stock_locate);
 
-    order_ref_map_[out.order_ref] = {out.side, out.price, out.qty, out.ticker_id};
+    auto& slot = order_ref_map_[out.ticker_id];
+    if (slot.size() <= out.order_ref) slot.resize(out.order_ref + 1);
+    slot[out.order_ref] = {out.side, out.price, out.qty, out.ticker_id};
+    ++tracked_order_count_;
     return true;
 }
 
@@ -141,9 +142,12 @@ auto ItchDecoder::decodeAddOrderMPID(const AddOrderMPID* msg, MarketUpdate& out)
     out.qty = msg->get_shares();
     out.order_ref = msg->get_ref();
     out.new_ref = 0;
-    out.ticker_id = tickerId(msg->stock);
+    out.ticker_id = stockLocate(msg->stock_locate);
 
-    order_ref_map_[out.order_ref] = {out.side, out.price, out.qty, out.ticker_id};
+    auto& slot = order_ref_map_[out.ticker_id];
+    if (slot.size() <= out.order_ref) slot.resize(out.order_ref + 1);
+    slot[out.order_ref] = {out.side, out.price, out.qty, out.ticker_id};
+    ++tracked_order_count_;
     return true;
 }
 
@@ -153,16 +157,19 @@ auto ItchDecoder::decodeOrderExecuted(const OrderExecuted* msg, MarketUpdate& ou
     out.order_ref = msg->get_ref();
     out.new_ref = msg->get_match();
 
-    const auto it = order_ref_map_.find(out.order_ref);
-    if (UNLIKELY(it == order_ref_map_.end())) {
+    const auto it = order_ref_map_.find(stockLocate(msg->stock_locate));
+    if (UNLIKELY(it == order_ref_map_.end() || it->second.size() <= out.order_ref)) {
         return false;
     }
 
-    out.side = it->second.side;
-    out.price = it->second.price;
-    out.ticker_id = it->second.ticker_id;
-    if (out.qty >= it->second.qty) order_ref_map_.erase(it);
-    else it->second.qty -= out.qty;
+    OrderState& state = it->second[out.order_ref];
+    if (state.qty == 0) return false;
+
+    out.side = state.side;
+    out.price = state.price;
+    out.ticker_id = state.ticker_id;
+    if (out.qty >= state.qty) { state.qty = 0; --tracked_order_count_; }
+    else state.qty -= out.qty;
     return true;
 }
 
@@ -172,16 +179,19 @@ auto ItchDecoder::decodeOrderCancel(const OrderCancel* msg, MarketUpdate& out) n
     out.order_ref = msg->get_ref();
     out.new_ref = 0;
 
-    const auto it = order_ref_map_.find(out.order_ref);
-    if (UNLIKELY(it == order_ref_map_.end())) {
+    const auto it = order_ref_map_.find(stockLocate(msg->stock_locate));
+    if (UNLIKELY(it == order_ref_map_.end() || it->second.size() <= out.order_ref)) {
         return false;
     }
 
-    out.side = it->second.side;
-    out.price = it->second.price;
-    out.ticker_id = it->second.ticker_id;
-    if (out.qty >= it->second.qty) order_ref_map_.erase(it);
-    else it->second.qty -= out.qty;
+    OrderState& state = it->second[out.order_ref];
+    if (state.qty == 0) return false;
+
+    out.side = state.side;
+    out.price = state.price;
+    out.ticker_id = state.ticker_id;
+    if (out.qty >= state.qty) { state.qty = 0; --tracked_order_count_; }
+    else state.qty -= out.qty;
     return true;
 }
 
@@ -218,15 +228,19 @@ auto ItchDecoder::decodeOrderDelete(const OrderDelete* msg, MarketUpdate& out) n
     out.order_ref = ref;
     out.new_ref = 0;
 
-    const auto it = order_ref_map_.find(out.order_ref);
-    if (UNLIKELY(it == order_ref_map_.end())) {
+    const auto it = order_ref_map_.find(stockLocate(msg->stock_locate));
+    if (UNLIKELY(it == order_ref_map_.end() || it->second.size() <= ref)) {
         return false;
     }
 
-    out.side = it->second.side;
-    out.price = it->second.price;
-    out.ticker_id = it->second.ticker_id;
-    order_ref_map_.erase(it);
+    OrderState& state = it->second[ref];
+    if (state.qty == 0) return false;
+
+    out.side = state.side;
+    out.price = state.price;
+    out.ticker_id = state.ticker_id;
+    state.qty = 0;
+    --tracked_order_count_;
     return true;
 }
 
@@ -237,20 +251,27 @@ auto ItchDecoder::decodeOrderReplace(const OrderReplace* msg, MarketUpdate& out)
     out.order_ref = msg->get_old_ref();
     out.new_ref = msg->get_new_ref();
 
-    const auto it = order_ref_map_.find(out.order_ref);
-    if (UNLIKELY(it == order_ref_map_.end())) {
+    const auto it = order_ref_map_.find(stockLocate(msg->stock_locate));
+    if (UNLIKELY(it == order_ref_map_.end() || it->second.size() <= out.order_ref)) {
         return false;
     }
 
-    out.side = it->second.side;
-    out.ticker_id = it->second.ticker_id;
-    order_ref_map_[out.new_ref] = {out.side, out.price, out.qty, out.ticker_id};
-    order_ref_map_.erase(it);
+    OrderState& state = it->second[out.order_ref];
+    if (state.qty == 0) return false;
+
+    out.side = state.side;
+    out.ticker_id = state.ticker_id;
+
+    auto& slot = it->second;
+    if (slot.size() <= out.new_ref) slot.resize(out.new_ref + 1);
+    slot[out.new_ref] = {out.side, out.price, out.qty, out.ticker_id};
+    state.qty = 0;
     return true;
 }
 
 auto ItchDecoder::reset() noexcept -> void {
     order_ref_map_.clear();
+    tracked_order_count_ = 0;
 }
 
 } // namespace alphatrader

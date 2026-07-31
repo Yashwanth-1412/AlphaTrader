@@ -49,13 +49,16 @@ private:
     auto queueIncremental(const MarketUpdate& update) noexcept -> void;
 
     auto startSnapshotSync() noexcept -> void;
+    auto startReplaySync(SeqNum client_seq) noexcept -> void;
     auto finishSnapshotSync(SeqNum resume_seq) noexcept -> void;
+    auto finishReplaySync() noexcept -> void;
     auto abortSnapshotSync() noexcept -> void;
     auto readSnapshotTcp() noexcept -> void;
+    auto processReplay() noexcept -> void;
+    auto onSnapshotTcpEof() noexcept -> void;
 
     auto sendToLogger(const char* fmt, auto&&... args) noexcept -> void {
-        logger_->log(fmt, __FILE__, __LINE__, __FUNCTION__,
-                     quantlink::utils::get_current_epoch_nanos(), std::forward<decltype(args)>(args)...);
+        logger_->log(fmt, std::forward<decltype(args)>(args)...);
     }
 
     quantlink::SPSCQueue<MarketUpdate>* incoming_md_updates_ = nullptr;
@@ -69,6 +72,13 @@ private:
     SeqNum next_exp_inc_seq_num_ = 0;
     std::atomic<bool> in_recovery_{false};
     bool snapshot_have_start_ = false;
+
+    enum class RecoveryMode : uint8_t { None, Snapshot, Replay };
+    RecoveryMode recovery_mode_ = RecoveryMode::None;
+    bool replay_status_read_ = false;
+    SeqNum replay_last_applied_ = 0;
+
+    static constexpr SeqNum REPLAY_CAPACITY = 8192; // must match server REPLAY_CAPACITY
 
     quantlink::McastSocket incremental_mcast_socket_{*logger_};
     int snapshot_tcp_fd_ = -1;

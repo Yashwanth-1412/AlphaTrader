@@ -10,8 +10,11 @@ using Quantity   = uint32_t;
 using OrderId    = uint64_t;
 using SeqNum     = uint64_t;
 using TickerId   = uint32_t;
+using Ratio      = int32_t;
 
 constexpr Price Price_INVALID = std::numeric_limits<Price>::min();
+constexpr Ratio Ratio_INVALID = std::numeric_limits<Ratio>::min();
+constexpr Ratio Ratio_SCALE = 1'000'000;
 constexpr OrderId OrderId_INVALID = std::numeric_limits<OrderId>::max();
 constexpr TickerId TickerId_INVALID = std::numeric_limits<TickerId>::max();
 
@@ -43,12 +46,21 @@ struct MarketUpdate {
     OrderId    new_ref   = 0;
 };
 
+enum class OrderRequestType : char {
+    NEW,
+    CANCEL,
+    REPLACE
+};
+
 struct OrderRequest {
-    OrderId  client_order_id = 0;
-    Side     side            = Side::BUY;
-    Price    price           = 0;
-    Quantity qty             = 0;
-    bool     ioc             = false;
+    OrderRequestType type            = OrderRequestType::NEW;
+    OrderId          client_order_id = 0;
+    OrderId          new_client_order_id = 0; // Required for REPLACE.
+    TickerId         ticker_id       = TickerId_INVALID;
+    Side             side            = Side::BUY;
+    Price            price           = 0;
+    Quantity         qty             = 0;
+    bool             ioc             = false;
 };
 
 struct OrderResponse {
@@ -59,19 +71,23 @@ struct OrderResponse {
     Quantity qty             = 0;
     Quantity executed_qty    = 0;
     Price    execution_price = 0;
-    Quantity leaves_qty      = 0;
+    Quantity canceled_qty    = 0;
 
     enum Status {
         ACCEPTED,
         EXECUTED,
         CANCELED,
-        REJECTED
+        REJECTED,
+        CANCEL_REJECTED
     } status = Status::REJECTED;
 };
 
 struct Position {
-    int64_t net_qty      = 0;
-    int64_t realized_pnl = 0;
+    int64_t net_qty        = 0;
+    int64_t realized_pnl   = 0;
+    int64_t unrealized_pnl = 0;
+    Price avg_entry_price  = Price_INVALID;
+    Price mark_price       = Price_INVALID;
 };
 
 struct BookOrder {
@@ -89,9 +105,9 @@ struct PriceLevel {
 };
 
 struct BBO {
-    Price    bid_price = 0;
+    Price    bid_price = Price_INVALID;
     Quantity bid_qty   = 0;
-    Price    ask_price = 0;
+    Price    ask_price = Price_INVALID;
     Quantity ask_qty   = 0;
 };
 

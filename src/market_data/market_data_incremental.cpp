@@ -33,7 +33,15 @@ auto MarketDataConsumer::detectGap(SeqNum received_seq) noexcept -> void {
         market_data_synchronized.store(false, std::memory_order_release);
         sendToLogger("MarketDataConsumer::detectGap() packet drop detected. expected=% received=%\n",
                      next_exp_inc_seq_num_, received_seq);
-        startSnapshotSync();
+        const SeqNum gap = received_seq - next_exp_inc_seq_num_;
+        if (gap <= REPLAY_CAPACITY) {
+            sendToLogger("MarketDataConsumer::detectGap() requesting replay from seq=% gap=%\n",
+                         next_exp_inc_seq_num_ - 1, gap);
+            startReplaySync(next_exp_inc_seq_num_ - 1);
+        } else {
+            sendToLogger("MarketDataConsumer::detectGap() gap=% too large for replay, requesting snapshot\n", gap);
+            startSnapshotSync();
+        }
     }
 }
 
