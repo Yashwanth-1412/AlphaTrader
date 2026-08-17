@@ -16,6 +16,8 @@ against [NanoExchange](https://github.com/Yashwanth-1412/NanoExchange).
 
 ## Architecture
 
+![AlphaTrader thread architecture with internals](docs/diagrams/architecture.svg)
+
 The client runs three threads on the trading path (market-data consumer, trade
 engine, order gateway), plus a dedicated logger thread. Every inter-thread
 hand-off is a single-producer / single-consumer lock-free ring: no locks, no
@@ -333,6 +335,8 @@ Details that matter:
   fill while the cancel is processed), so it rides on flags beside the enum.
 
 ## Market data and recovery
+
+![Incremental feed, snapshot and recovery streams](docs/diagrams/marketdata_flow.svg)
 
 The feed delivers one datagram per update: `[ 8-byte big-endian sequence
 number ][ ITCH payload ]`. `MarketDataConsumer` tracks the next expected

@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="930" viewBox="0 0 1220 930" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+  <!-- Opaque canvas: keeps text readable on GitHub dark mode -->
+  <rect x="0" y="0" width="100%" height="100%" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#444"/>
+    </marker>
+    <marker id="arrBlue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#1a5fb4"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrPurple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#8a5fc0"/>
+    </marker>
+    <marker id="arrGray" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3.5 L0,7 Z" fill="#999"/>
+    </marker>
+  </defs>
+
+  <!-- ================= TITLE ================= -->
+  <text x="610" y="34" text-anchor="middle" font-size="22" font-weight="bold" fill="#222">AlphaTrader — Client Thread Architecture</text>
+
+  <!-- ================= CLIENT FRAME ================= -->
+  <rect x="30" y="60" width="900" height="820" rx="14" fill="#f7f9fc" stroke="#8aa3c0" stroke-width="2"/>
+  <text x="480" y="868" text-anchor="middle" font-size="15" font-weight="bold" fill="#5a6b80" letter-spacing="4">ALPHATRADER CLIENT</text>
+
+  <!-- ================= MARKET DATA CONSUMER THREAD ================= -->
+  <rect x="70" y="95" width="820" height="170" rx="10" fill="#e3e9f6" stroke="#4a6bb5" stroke-width="2"/>
+  <text x="90" y="121" font-size="14" font-weight="bold" fill="#274a86">MARKET DATA CONSUMER THREAD</text>
+  <text x="870" y="121" text-anchor="end" font-size="12" fill="#274a86">pinned core</text>
+
+  <rect x="105" y="135" width="176" height="106" rx="8" fill="#fff" stroke="#4a6bb5" stroke-width="1.5"/>
+  <text x="193" y="167" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">UDP ingest</text>
+  <text x="193" y="187" text-anchor="middle" font-size="11" fill="#777">recv [seq][ITCH]</text>
+  <text x="193" y="205" text-anchor="middle" font-size="11" fill="#777">NEXSUB re-register 1 s</text>
+
+  <rect x="299" y="135" width="176" height="106" rx="8" fill="#fff" stroke="#4a6bb5" stroke-width="1.5"/>
+  <text x="387" y="167" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">ITCH decoder</text>
+  <text x="387" y="187" text-anchor="middle" font-size="11" fill="#777">truncated → wait</text>
+  <text x="387" y="205" text-anchor="middle" font-size="11" fill="#777">malformed → resync byte</text>
+
+  <rect x="493" y="135" width="176" height="106" rx="8" fill="#fff" stroke="#4a6bb5" stroke-width="1.5"/>
+  <text x="581" y="167" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Sequence check</text>
+  <text x="581" y="187" text-anchor="middle" font-size="11" fill="#777">seq == expected + 1?</text>
+  <text x="581" y="205" text-anchor="middle" font-size="11" fill="#777">contiguous → md_queue</text>
+
+  <rect x="687" y="135" width="176" height="106" rx="8" fill="#fff" stroke="#4a6bb5" stroke-width="1.5"/>
+  <text x="775" y="161" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Recovery</text>
+  <text x="775" y="181" text-anchor="middle" font-size="10.5" fill="#777">gap ≤ 8192 → R replay</text>
+  <text x="775" y="199" text-anchor="middle" font-size="10.5" fill="#777">gap larger → S snapshot</text>
+  <text x="775" y="217" text-anchor="middle" font-size="10.5" fill="#777">queue increments meanwhile</text>
+
+  <line x1="281" y1="188" x2="295" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="475" y1="188" x2="489" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="669" y1="188" x2="683" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+
+  <line x1="490" y1="265" x2="490" y2="277" stroke="#1a5fb4" stroke-width="2.5"/>
+  <rect x="390" y="277" width="200" height="26" rx="13" fill="#1a5fb4"/>
+  <text x="490" y="294" text-anchor="middle" font-size="12" fill="#fff">md_queue · SPSC</text>
+  <line x1="490" y1="303" x2="490" y2="310" stroke="#1a5fb4" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+
+  <!-- ================= TRADE ENGINE THREAD ================= -->
+  <rect x="70" y="310" width="820" height="250" rx="10" fill="#fae3e3" stroke="#c05252" stroke-width="2"/>
+  <text x="90" y="336" font-size="14" font-weight="bold" fill="#7a2424">TRADE ENGINE THREAD</text>
+  <text x="870" y="336" text-anchor="end" font-size="12" fill="#7a2424">pinned core</text>
+
+  <rect x="105" y="350" width="176" height="115" rx="8" fill="#fff" stroke="#a04040" stroke-width="1.5"/>
+  <text x="193" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Shared books</text>
+  <text x="193" y="402" text-anchor="middle" font-size="11" fill="#777">one per ticker, engine-owned</text>
+  <text x="193" y="420" text-anchor="middle" font-size="11" fill="#777">bids / asks maps · top of book</text>
+  <text x="193" y="438" text-anchor="middle" font-size="11" fill="#777">object-pool orders</text>
+
+  <rect x="299" y="350" width="176" height="115" rx="8" fill="#fff" stroke="#a04040" stroke-width="1.5"/>
+  <text x="387" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">FeatureEngine</text>
+  <text x="387" y="402" text-anchor="middle" font-size="11" fill="#777">variadic inheritance + fold</text>
+  <text x="387" y="420" text-anchor="middle" font-size="11" fill="#777">inlined dispatch · get&lt;T&gt;()</text>
+  <text x="387" y="438" text-anchor="middle" font-size="11" fill="#777">4 features per slot</text>
+
+  <rect x="493" y="350" width="176" height="115" rx="8" fill="#fff" stroke="#a04040" stroke-width="1.5"/>
+  <text x="581" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Risk + PnL</text>
+  <text x="581" y="402" text-anchor="middle" font-size="11" fill="#777">id → risk → enqueue → reserve</text>
+  <text x="581" y="420" text-anchor="middle" font-size="11" fill="#777">pending-exposure reservations</text>
+  <text x="581" y="438" text-anchor="middle" font-size="11" fill="#777">realised / unrealised PnL</text>
+
+  <rect x="687" y="350" width="176" height="115" rx="8" fill="#fff" stroke="#a04040" stroke-width="1.5"/>
+  <text x="775" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">OrderManager</text>
+  <text x="775" y="402" text-anchor="middle" font-size="11" fill="#777">explicit state machine</text>
+  <text x="775" y="420" text-anchor="middle" font-size="11" fill="#777">slot-encoded order ids</text>
+  <text x="775" y="438" text-anchor="middle" font-size="11" fill="#777">re-key on replace</text>
+
+  <line x1="281" y1="407" x2="295" y2="407" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="475" y1="407" x2="489" y2="407" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="669" y1="407" x2="683" y2="407" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="105" y="490" width="758" height="52" rx="8" fill="#fff" stroke="#a04040" stroke-width="1.5"/>
+  <text x="484" y="512" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Strategy slots — 4 slots · LiquidityTaker</text>
+  <text x="484" y="530" text-anchor="middle" font-size="11" fill="#777">IOC at best quote above imbalance threshold · gated on market_data_synchronized</text>
+
+  <line x1="400" y1="560" x2="400" y2="568" stroke="#444" stroke-width="2.5"/>
+  <rect x="330" y="568" width="140" height="26" rx="13" fill="#222"/>
+  <text x="400" y="585" text-anchor="middle" font-size="12" fill="#fff">request_queue · SPSC</text>
+  <line x1="400" y1="594" x2="400" y2="600" stroke="#444" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <line x1="590" y1="600" x2="590" y2="594" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+  <rect x="520" y="568" width="140" height="26" rx="13" fill="#2e7d32"/>
+  <text x="590" y="585" text-anchor="middle" font-size="12" fill="#fff">response_queue · SPSC</text>
+  <line x1="590" y1="568" x2="590" y2="560" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+
+  <!-- ================= ORDER GATEWAY THREAD ================= -->
+  <rect x="70" y="600" width="820" height="150" rx="10" fill="#fdf3d7" stroke="#c9a227" stroke-width="2"/>
+  <text x="90" y="626" font-size="14" font-weight="bold" fill="#7a5c00">ORDER GATEWAY THREAD</text>
+  <text x="870" y="626" text-anchor="end" font-size="12" fill="#7a5c00">pinned core</text>
+
+  <rect x="105" y="640" width="240" height="90" rx="8" fill="#fff" stroke="#b48b1e" stroke-width="1.5"/>
+  <text x="225" y="676" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">TCP socket</text>
+  <text x="225" y="696" text-anchor="middle" font-size="11" fill="#777">sendAndRecv · epoll</text>
+  <text x="225" y="714" text-anchor="middle" font-size="11" fill="#777">SCM kernel timestamps</text>
+
+  <rect x="367" y="640" width="240" height="90" rx="8" fill="#fff" stroke="#b48b1e" stroke-width="1.5"/>
+  <text x="487" y="676" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">OUCH encoder</text>
+  <text x="487" y="696" text-anchor="middle" font-size="11" fill="#777">Enter O · Cancel X · Replace U</text>
+  <text x="487" y="714" text-anchor="middle" font-size="11" fill="#777">token = client order id</text>
+
+  <rect x="629" y="640" width="240" height="90" rx="8" fill="#fff" stroke="#b48b1e" stroke-width="1.5"/>
+  <text x="749" y="676" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">OUCH decoder</text>
+  <text x="749" y="696" text-anchor="middle" font-size="11" fill="#777">fixed-size per type byte</text>
+  <text x="749" y="714" text-anchor="middle" font-size="11" fill="#777">unknown type → skip byte</text>
+
+  <line x1="345" y1="685" x2="363" y2="685" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="607" y1="685" x2="625" y2="685" stroke="#444" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ================= LOGGER (dotted edges) ================= -->
+  <rect x="965" y="650" width="200" height="120" rx="10" fill="#eef0f2" stroke="#8a939e" stroke-width="2"/>
+  <text x="1065" y="676" text-anchor="middle" font-size="14" font-weight="bold" fill="#4a525c">LOGGER</text>
+  <text x="1065" y="694" text-anchor="middle" font-size="12" fill="#4a525c">THREAD</text>
+  <rect x="985" y="705" width="160" height="44" rx="8" fill="#fff" stroke="#8a939e" stroke-width="1.5"/>
+  <text x="1065" y="726" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Async writer</text>
+  <text x="1065" y="742" text-anchor="middle" font-size="10" fill="#777">MPSC jiffy queue · 8 MB</text>
+
+  <line x1="890" y1="690" x2="961" y2="690" stroke="#999" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#arrGray)"/>
+  <polyline points="890,480 950,480 950,700 961,700" fill="none" stroke="#999" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#arrGray)"/>
+  <polyline points="890,200 950,200 950,718 961,718" fill="none" stroke="#999" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#arrGray)"/>
+  <text x="925" y="495" font-size="10" fill="#999">logs</text>
+  <text x="925" y="735" font-size="10" fill="#999">logs</text>
+
+  <!-- ================= NANOEXCHANGE (external) ================= -->
+  <rect x="985" y="95" width="200" height="510" rx="10" fill="#fff" stroke="#555" stroke-width="2"/>
+  <text x="1085" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#222">NANOEXCHANGE</text>
+  <text x="1085" y="140" text-anchor="middle" font-size="10" fill="#666">external · same host</text>
+
+  <rect x="1005" y="150" width="160" height="60" rx="8" fill="#eef4fd" stroke="#4a6bb5" stroke-width="1.5"/>
+  <text x="1085" y="174" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a5fb4">ITCH feed gateway</text>
+  <text x="1085" y="192" text-anchor="middle" font-size="10" fill="#666">21001 · seq + ITCH</text>
+
+  <rect x="1005" y="225" width="160" height="60" rx="8" fill="#f8f4fc" stroke="#8a5fc0" stroke-width="1.5"/>
+  <text x="1085" y="249" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b3591">Snapshot / replay</text>
+  <text x="1085" y="267" text-anchor="middle" font-size="10" fill="#666">TCP 21003 · S / R</text>
+
+  <rect x="1005" y="300" width="160" height="70" rx="8" fill="#fdf7e0" stroke="#c9a227" stroke-width="1.5"/>
+  <text x="1085" y="324" text-anchor="middle" font-size="12" font-weight="bold" fill="#7a5c00">OUCH session</text>
+  <text x="1085" y="342" text-anchor="middle" font-size="10" fill="#666">TCP 11000 (client default)</text>
+  <text x="1085" y="358" text-anchor="middle" font-size="10" fill="#666">A / E / C / U / J replies</text>
+
+  <rect x="1005" y="390" width="160" height="190" rx="8" fill="#f2f4f6" stroke="#8a939e" stroke-width="1.5"/>
+  <text x="1085" y="414" text-anchor="middle" font-size="12" font-weight="bold" fill="#4a525c">Behind the ports</text>
+  <text x="1085" y="436" text-anchor="middle" font-size="10.5" fill="#666">per-subscriber fan-out</text>
+  <text x="1085" y="454" text-anchor="middle" font-size="10.5" fill="#666">evicts silent clients</text>
+  <text x="1085" y="478" text-anchor="middle" font-size="10.5" fill="#666">shadow book + replay</text>
+  <text x="1085" y="496" text-anchor="middle" font-size="10.5" fill="#666">ring 8192 · snapshot bake</text>
+  <text x="1085" y="520" text-anchor="middle" font-size="10.5" fill="#666">price-time priority</text>
+  <text x="1085" y="538" text-anchor="middle" font-size="10.5" fill="#666">matching on the wire</text>
+
+  <!-- ================= NETWORK EDGES ================= -->
+  <line x1="960" y1="180" x2="894" y2="180" stroke="#1a5fb4" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+  <text x="927" y="172" text-anchor="middle" font-size="10" fill="#1a5fb4">ITCH + seq · UDP</text>
+
+  <line x1="960" y1="240" x2="894" y2="240" stroke="#8a5fc0" stroke-width="2.5" marker-end="url(#arrPurple)"/>
+  <line x1="894" y1="270" x2="960" y2="270" stroke="#8a5fc0" stroke-width="2.5" marker-end="url(#arrPurple)"/>
+  <text x="927" y="232" text-anchor="middle" font-size="9.5" fill="#8a5fc0">S / R requests</text>
+  <text x="927" y="286" text-anchor="middle" font-size="9.5" fill="#8a5fc0">snapshot / replay frames</text>
+
+  <line x1="894" y1="315" x2="1000" y2="315" stroke="#444" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="1000" y1="345" x2="894" y2="345" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+  <text x="947" y="307" text-anchor="middle" font-size="10" fill="#444">orders</text>
+  <text x="947" y="360" text-anchor="middle" font-size="10" fill="#2e7d32">responses</text>
+
+  <!-- ================= LEGEND ================= -->
+  <rect x="30" y="888" width="1160" height="26" rx="6" fill="#fff" stroke="#ccc"/>
+  <line x1="55" y1="901" x2="90" y2="901" stroke="#444" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text x="98" y="905" font-size="11" fill="#333">SPSC lock-free queue</text>
+  <line x1="245" y1="901" x2="280" y2="901" stroke="#1a5fb4" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+  <text x="288" y="905" font-size="11" fill="#333">feed network in</text>
+  <line x1="415" y1="901" x2="450" y2="901" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+  <text x="458" y="905" font-size="11" fill="#333">private responses</text>
+  <line x1="605" y1="901" x2="640" y2="901" stroke="#8a5fc0" stroke-width="2.5" marker-end="url(#arrPurple)"/>
+  <text x="648" y="905" font-size="11" fill="#333">recovery / TCP</text>
+  <line x1="790" y1="901" x2="825" y2="901" stroke="#999" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#arrGray)"/>
+  <text x="833" y="905" font-size="11" fill="#333">async logging (MPSC)</text>
+  <text x="1175" y="905" text-anchor="end" font-size="11" fill="#555">All trading queues SPSC · no locks · compile-time plugin set</text>
+</svg>
