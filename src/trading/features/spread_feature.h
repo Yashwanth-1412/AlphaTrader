@@ -14,11 +14,11 @@ struct SpreadFeature {
         spread_ = bbo.ask_price - bbo.bid_price;
     }
 
-    Price value() const noexcept { return spread_; }
+    Price       value() const noexcept { return spread_; }
     const char* name() const noexcept { return "spread"; }
 
-private:
+  private:
     Price spread_ = Price_INVALID;
 };
 
-}
+} // namespace alphatrader

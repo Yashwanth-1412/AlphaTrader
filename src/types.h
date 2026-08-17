@@ -5,17 +5,17 @@
 
 namespace alphatrader {
 
-using Price      = int32_t; // ITCH scale: 1/10000 dollar (e.g., 1500000 = $150.0000)
-using Quantity   = uint32_t;
-using OrderId    = uint64_t;
-using SeqNum     = uint64_t;
-using TickerId   = uint32_t;
-using Ratio      = int32_t;
+using Price    = int32_t; // ITCH scale: 1/10000 dollar (e.g., 1500000 = $150.0000)
+using Quantity = uint32_t;
+using OrderId  = uint64_t;
+using SeqNum   = uint64_t;
+using TickerId = uint32_t;
+using Ratio    = int32_t;
 
-constexpr Price Price_INVALID = std::numeric_limits<Price>::min();
-constexpr Ratio Ratio_INVALID = std::numeric_limits<Ratio>::min();
-constexpr Ratio Ratio_SCALE = 1'000'000;
-constexpr OrderId OrderId_INVALID = std::numeric_limits<OrderId>::max();
+constexpr Price    Price_INVALID    = std::numeric_limits<Price>::min();
+constexpr Ratio    Ratio_INVALID    = std::numeric_limits<Ratio>::min();
+constexpr Ratio    Ratio_SCALE      = 1'000'000;
+constexpr OrderId  OrderId_INVALID  = std::numeric_limits<OrderId>::max();
 constexpr TickerId TickerId_INVALID = std::numeric_limits<TickerId>::max();
 
 enum class Side : char {
@@ -53,14 +53,14 @@ enum class OrderRequestType : char {
 };
 
 struct OrderRequest {
-    OrderRequestType type            = OrderRequestType::NEW;
-    OrderId          client_order_id = 0;
+    OrderRequestType type                = OrderRequestType::NEW;
+    OrderId          client_order_id     = 0;
     OrderId          new_client_order_id = 0; // Required for REPLACE.
-    TickerId         ticker_id       = TickerId_INVALID;
-    Side             side            = Side::BUY;
-    Price            price           = 0;
-    Quantity         qty             = 0;
-    bool             ioc             = false;
+    TickerId         ticker_id           = TickerId_INVALID;
+    Side             side                = Side::BUY;
+    Price            price               = 0;
+    Quantity         qty                 = 0;
+    bool             ioc                 = false;
 };
 
 struct OrderResponse {
@@ -83,18 +83,18 @@ struct OrderResponse {
 };
 
 struct Position {
-    int64_t net_qty        = 0;
-    int64_t realized_pnl   = 0;
-    int64_t unrealized_pnl = 0;
-    Price avg_entry_price  = Price_INVALID;
-    Price mark_price       = Price_INVALID;
+    int64_t net_qty         = 0;
+    int64_t realized_pnl    = 0;
+    int64_t unrealized_pnl  = 0;
+    Price   avg_entry_price = Price_INVALID;
+    Price   mark_price      = Price_INVALID;
 };
 
 struct BookOrder {
-    OrderId  order_ref = 0;
-    Quantity qty       = 0;
-    BookOrder* next    = nullptr;
-    BookOrder* prev    = nullptr;
+    OrderId    order_ref = 0;
+    Quantity   qty       = 0;
+    BookOrder* next      = nullptr;
+    BookOrder* prev      = nullptr;
 };
 
 struct PriceLevel {
@@ -112,9 +112,9 @@ struct BBO {
 };
 
 namespace SnapshotControl {
-    constexpr uint16_t SNAPSHOT_START = 0xBBBB;
-    constexpr uint16_t SNAPSHOT_CLEAR = 0xCCCC;
-    constexpr uint16_t SNAPSHOT_END   = 0xEEEE;
+constexpr uint16_t SNAPSHOT_START = 0xBBBB;
+constexpr uint16_t SNAPSHOT_CLEAR = 0xCCCC;
+constexpr uint16_t SNAPSHOT_END   = 0xEEEE;
 } // namespace SnapshotControl
 
 } // namespace alphatrader

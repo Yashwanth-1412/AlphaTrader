@@ -1,48 +1,42 @@
-# Build directories
-build/
+# Build trees
+build*/
 cmake-build-*/
 
-# Compiled object files
-*.o
-*.obj
-*.so
-*.a
-*.lib
-*.dll
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# CMake files
+# In-source CMake artifacts (safety net)
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-Makefile
+CTestTestfile.cmake
 compile_commands.json
 
-# IDE files
-.vs/
+# Compiled output
+*.o
+*.a
+*.so
+*.so.*
+*.out
+
+# Run output
+*.log
+test_output/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Editors and IDEs
 .vscode/
+.vs/
 .idea/
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Serena
+# Tooling caches
+.cache/
 .serena/
 
-# Cache
-.cache/
-
-# Test output
-test_output/

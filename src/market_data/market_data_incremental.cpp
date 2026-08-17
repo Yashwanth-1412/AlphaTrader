@@ -1,4 +1,4 @@
-#include "market_data_consumer.h"
+#include "market_data.h"
 
 namespace alphatrader {
 
@@ -31,12 +31,10 @@ auto MarketDataConsumer::processIncremental(const MarketUpdate& update) noexcept
 auto MarketDataConsumer::detectGap(SeqNum received_seq) noexcept -> void {
     if (!in_recovery_.exchange(true, std::memory_order_acq_rel)) {
         market_data_synchronized.store(false, std::memory_order_release);
-        sendToLogger("MarketDataConsumer::detectGap() packet drop detected. expected=% received=%\n",
-                     next_exp_inc_seq_num_, received_seq);
+        sendToLogger("MarketDataConsumer::detectGap() packet drop detected. expected=% received=%\n", next_exp_inc_seq_num_, received_seq);
         const SeqNum gap = received_seq - next_exp_inc_seq_num_;
         if (gap <= REPLAY_CAPACITY) {
-            sendToLogger("MarketDataConsumer::detectGap() requesting replay from seq=% gap=%\n",
-                         next_exp_inc_seq_num_ - 1, gap);
+            sendToLogger("MarketDataConsumer::detectGap() requesting replay from seq=% gap=%\n", next_exp_inc_seq_num_ - 1, gap);
             startReplaySync(next_exp_inc_seq_num_ - 1);
         } else {
             sendToLogger("MarketDataConsumer::detectGap() gap=% too large for replay, requesting snapshot\n", gap);
