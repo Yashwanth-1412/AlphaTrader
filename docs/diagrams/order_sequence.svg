@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="470" viewBox="0 0 1100 470" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="1100" height="470" fill="#ffffff"/>
+<defs>
+ <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#444"/></marker>
+ <marker id="g" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#2e7d32"/></marker>
+</defs>
+<text x="550" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="#111">Order Lifecycle — Request / Response</text>
+<text x="550" y="58" text-anchor="middle" font-size="11" fill="#666">Responses return to the TradeEngine and are drained before the next market update</text>
+
+<rect x="40" y="90" width="200" height="330" rx="12" fill="#f9e7e7" stroke="#bf5555" stroke-width="2"/>
+<text x="140" y="118" text-anchor="middle" font-size="14" font-weight="700" fill="#7a2424">TRADE ENGINE</text>
+<text x="140" y="150" text-anchor="middle" font-size="10.5" fill="#444">strategy signal</text>
+<text x="140" y="190" text-anchor="middle" font-size="10.5" fill="#444">submitOrder</text>
+<text x="140" y="230" text-anchor="middle" font-size="10.5" fill="#444">drain response_queue</text>
+<text x="140" y="270" text-anchor="middle" font-size="10.5" fill="#444">ownerOf(id)</text>
+<text x="140" y="310" text-anchor="middle" font-size="10.5" fill="#444">state / reservation</text>
+<text x="140" y="330" text-anchor="middle" font-size="10.5" fill="#444">/ PnL</text>
+
+<rect x="320" y="90" width="200" height="330" rx="12" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="420" y="118" text-anchor="middle" font-size="14" font-weight="700" fill="#765900">ORDER MANAGER</text>
+<text x="420" y="160" text-anchor="middle" font-size="10.5" fill="#444">allocate ID</text>
+<text x="420" y="205" text-anchor="middle" font-size="10.5" fill="#444">risk check</text>
+<text x="420" y="250" text-anchor="middle" font-size="10.5" fill="#444">enqueue</text>
+<text x="420" y="295" text-anchor="middle" font-size="10.5" fill="#444">reserve exposure</text>
+
+<rect x="600" y="90" width="200" height="330" rx="12" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="700" y="118" text-anchor="middle" font-size="14" font-weight="700" fill="#765900">ORDER GATEWAY</text>
+<text x="700" y="165" text-anchor="middle" font-size="10.5" fill="#444">busy-poll request</text>
+<text x="700" y="210" text-anchor="middle" font-size="10.5" fill="#444">OUCH encode</text>
+<text x="700" y="255" text-anchor="middle" font-size="10.5" fill="#444">TCP send</text>
+<text x="700" y="300" text-anchor="middle" font-size="10.5" fill="#444">decode response</text>
+<text x="700" y="345" text-anchor="middle" font-size="10.5" fill="#444">push response</text>
+
+<rect x="880" y="90" width="180" height="330" rx="12" fill="#f2f4f6" stroke="#7d8792" stroke-width="2"/>
+<text x="970" y="118" text-anchor="middle" font-size="14" font-weight="700" fill="#3f4852">EXCHANGE</text>
+<text x="970" y="180" text-anchor="middle" font-size="10.5" fill="#444">OUCH order</text>
+<text x="970" y="235" text-anchor="middle" font-size="10.5" fill="#444">Accepted</text>
+<text x="970" y="255" text-anchor="middle" font-size="10.5" fill="#444">Executed</text>
+<text x="970" y="275" text-anchor="middle" font-size="10.5" fill="#444">Canceled</text>
+<text x="970" y="295" text-anchor="middle" font-size="10.5" fill="#444">Replaced</text>
+
+<line x1="240" y1="175" x2="312" y2="175" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<text x="276" y="164" text-anchor="middle" font-size="9.5" fill="#444">submit</text>
+<line x1="520" y1="250" x2="592" y2="250" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<text x="556" y="239" text-anchor="middle" font-size="9.5" fill="#444">OrderRequest</text>
+<line x1="800" y1="210" x2="872" y2="210" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<text x="836" y="199" text-anchor="middle" font-size="9.5" fill="#444">OUCH</text>
+<path d="M880 300 H850 V380 H270 V235" fill="none" stroke="#2e7d32" stroke-width="2.8" marker-end="url(#g)"/>
+<text x="575" y="398" text-anchor="middle" font-size="9.5" fill="#2e7d32">response_queue → TradeEngine</text>
+</svg>

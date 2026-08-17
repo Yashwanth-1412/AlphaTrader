@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="360" viewBox="0 0 860 360" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="860" height="360" fill="#ffffff"/>
+<text x="430.0" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#111">TradeEngine — Hot Path</text>
+<text x="430.0" y="57" text-anchor="middle" font-size="11" fill="#666">One engine thread: responses first, then market updates</text>
+<defs>
+ <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#444"/></marker>
+ <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#1769aa"/></marker>
+ <marker id="p" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#7650b5"/></marker>
+ <marker id="g" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#2e7d32"/></marker>
+</defs>
+<rect x="35" y="125" width="145" height="90" rx="10" fill="#eaf1fb" stroke="#4775b8" stroke-width="2"/>
+<text x="107.5" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#222">md_queue</text>
+<text x="107.5" y="174" text-anchor="middle" font-size="10.5" fill="#555">decoded market updates</text>
+<rect x="220" y="125" width="175" height="90" rx="10" fill="#f3f4f6" stroke="#777" stroke-width="2"/>
+<text x="307.5" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Shared Order Book</text>
+<text x="307.5" y="174" text-anchor="middle" font-size="10.5" fill="#555">apply each market update once</text>
+<rect x="435" y="125" width="175" height="90" rx="10" fill="#eef7ee" stroke="#5b8c5a" stroke-width="2"/>
+<text x="522.5" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Feature Engine</text>
+<text x="522.5" y="174" text-anchor="middle" font-size="10.5" fill="#555">compile-time feature fan-out</text>
+<rect x="650" y="125" width="175" height="90" rx="10" fill="#f9e7e7" stroke="#bf5555" stroke-width="2"/>
+<text x="737.5" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Strategy</text>
+<text x="737.5" y="174" text-anchor="middle" font-size="10.5" fill="#555">signal generation</text>
+<rect x="315" y="260" width="180" height="70" rx="10" fill="#fff" stroke="#777" stroke-width="2"/>
+<text x="405.0" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#222">PnL</text>
+<text x="405.0" y="309" text-anchor="middle" font-size="10.5" fill="#555">mark positions</text>
+<rect x="545" y="260" width="180" height="70" rx="10" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="635.0" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#222">OrderManager</text>
+<text x="635.0" y="309" text-anchor="middle" font-size="10.5" fill="#555">risk → enqueue → reserve</text>
+<line x1="180" y1="170" x2="212" y2="170" stroke="#1769aa" stroke-width="2.8" marker-end="url(#b)"/>
+<line x1="395" y1="170" x2="427" y2="170" stroke="#1769aa" stroke-width="2.8" marker-end="url(#b)"/>
+<line x1="610" y1="170" x2="642" y2="170" stroke="#1769aa" stroke-width="2.8" marker-end="url(#b)"/>
+<line x1="522" y1="215" x2="405" y2="255" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="737" y1="215" x2="635" y2="255" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="495" y1="295" x2="537" y2="295" stroke="#444" stroke-width="2.5" marker-end="url(#a)"/>
+<text x="470" y="246" font-size="9.5" fill="#555">feature state</text>
+<text x="690" y="246" font-size="9.5" fill="#555">signal</text>
+</svg>

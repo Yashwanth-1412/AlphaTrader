@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="300" viewBox="0 0 620 300" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="620" height="300" fill="#ffffff"/>
+<text x="310.0" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#111">Order Lifecycle</text>
+<text x="310.0" y="57" text-anchor="middle" font-size="11" fill="#666">Cancellation is represented by flags while an order may still execute</text>
+<defs>
+ <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#444"/></marker>
+ <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#1769aa"/></marker>
+ <marker id="p" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#7650b5"/></marker>
+ <marker id="g" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#2e7d32"/></marker>
+</defs>
+<rect x="35" y="125" width="125" height="70" rx="10" fill="#eaf1fb" stroke="#4775b8" stroke-width="2"/>
+<text x="97.5" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#222">ACTIVE</text>
+<text x="97.5" y="174" text-anchor="middle" font-size="10.5" fill="#555">live order</text>
+<rect x="205" y="95" width="150" height="70" rx="10" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="280.0" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#222">PARTIALLY</text>
+<text x="280.0" y="144" text-anchor="middle" font-size="10.5" fill="#555">FILLED</text>
+<rect x="205" y="185" width="150" height="70" rx="10" fill="#eaf6eb" stroke="#5b8c5a" stroke-width="2"/>
+<text x="280.0" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#222">COMPLETED</text>
+<text x="280.0" y="234" text-anchor="middle" font-size="10.5" fill="#555">fully executed</text>
+<rect x="405" y="95" width="150" height="70" rx="10" fill="#f3f4f6" stroke="#777" stroke-width="2"/>
+<text x="480.0" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#222">CANCELLED</text>
+<text x="480.0" y="144" text-anchor="middle" font-size="10.5" fill="#555">cancel accepted</text>
+<rect x="405" y="185" width="150" height="70" rx="10" fill="#f9e7e7" stroke="#bf5555" stroke-width="2"/>
+<text x="480.0" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#222">DEAD</text>
+<text x="480.0" y="234" text-anchor="middle" font-size="10.5" fill="#555">rejected / terminal</text>
+<line x1="160" y1="160" x2="197" y2="130" stroke="#444" stroke-width="2.6" marker-end="url(#a)"/>
+<line x1="355" y1="130" x2="397" y2="130" stroke="#444" stroke-width="2.6" marker-end="url(#a)"/>
+<line x1="355" y1="220" x2="397" y2="220" stroke="#444" stroke-width="2.6" marker-end="url(#a)"/>
+<path d="M280 165 V180" fill="none" stroke="#444" stroke-width="2.6" marker-end="url(#a)"/>
+<path d="M160 160 H180 V220 H197" fill="none" stroke="#444" stroke-width="2.6" marker-end="url(#a)"/>
+<text x="70" y="105" font-size="10" fill="#555">submit</text>
+<text x="360" y="112" font-size="9.5" fill="#555">cancel / terminal</text>
+<text x="360" y="202" font-size="9.5" fill="#555">cancel / terminal</text>
+</svg>

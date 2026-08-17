@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="310" viewBox="0 0 860 310" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="860" height="310" fill="#ffffff"/>
+<text x="430.0" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#111">OrderGateway</text>
+<text x="430.0" y="57" text-anchor="middle" font-size="11" fill="#666">Dedicated wire thread: fixed-layout OUCH frames in both directions</text>
+<defs>
+ <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#444"/></marker>
+ <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#1769aa"/></marker>
+ <marker id="p" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#7650b5"/></marker>
+ <marker id="g" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#2e7d32"/></marker>
+</defs>
+<rect x="35" y="130" width="155" height="90" rx="10" fill="#f3f4f6" stroke="#777" stroke-width="2"/>
+<text x="112.5" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">request_queue</text>
+<text x="112.5" y="179" text-anchor="middle" font-size="10.5" fill="#555">OrderRequest</text>
+<text x="112.5" y="196" text-anchor="middle" font-size="10.5" fill="#555">busy-poll</text>
+<rect x="240" y="100" width="165" height="150" rx="10" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="322.5" y="127" text-anchor="middle" font-size="13" font-weight="700" fill="#222">OrderGateway</text>
+<text x="322.5" y="149" text-anchor="middle" font-size="10.5" fill="#555">type byte</text>
+<text x="322.5" y="166" text-anchor="middle" font-size="10.5" fill="#555">fixed-size decode</text>
+<text x="322.5" y="183" text-anchor="middle" font-size="10.5" fill="#555">OUCH encode</text>
+<rect x="455" y="130" width="150" height="90" rx="10" fill="#f2f4f6" stroke="#777" stroke-width="2"/>
+<text x="530.0" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Exchange</text>
+<text x="530.0" y="179" text-anchor="middle" font-size="10.5" fill="#555">OUCH / TCP</text>
+<rect x="655" y="130" width="170" height="90" rx="10" fill="#eaf6eb" stroke="#5b8c5a" stroke-width="2"/>
+<text x="740.0" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">response_queue</text>
+<text x="740.0" y="179" text-anchor="middle" font-size="10.5" fill="#555">OrderResponse</text>
+<text x="740.0" y="196" text-anchor="middle" font-size="10.5" fill="#555">SPSC</text>
+<line x1="190" y1="175" x2="232" y2="175" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<line x1="405" y1="175" x2="447" y2="175" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<line x1="605" y1="175" x2="647" y2="175" stroke="#2e7d32" stroke-width="2.8" marker-end="url(#g)"/>
+<text x="428" y="160" text-anchor="middle" font-size="9.5" fill="#444">O / X / U</text>
+<text x="625" y="160" text-anchor="middle" font-size="9.5" fill="#2e7d32">A / E / C / U / J</text>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="370" viewBox="0 0 1000 370" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="1000" height="370" fill="#ffffff"/>
+<text x="500.0" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#111">Order Management & Risk</text>
+<text x="500.0" y="57" text-anchor="middle" font-size="11" fill="#666">Risk is checked before enqueue; exposure is reserved immediately after submission</text>
+<defs>
+ <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#444"/></marker>
+ <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#1769aa"/></marker>
+ <marker id="p" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#7650b5"/></marker>
+ <marker id="g" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#2e7d32"/></marker>
+</defs>
+<rect x="30" y="130" width="145" height="85" rx="10" fill="#f9e7e7" stroke="#bf5555" stroke-width="2"/>
+<text x="102.5" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Strategy</text>
+<text x="102.5" y="179" text-anchor="middle" font-size="10.5" fill="#555">signal</text>
+<rect x="220" y="115" width="165" height="115" rx="10" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="302.5" y="142" text-anchor="middle" font-size="13" font-weight="700" fill="#222">OrderManager</text>
+<text x="302.5" y="164" text-anchor="middle" font-size="10.5" fill="#555">allocate ID</text>
+<text x="302.5" y="181" text-anchor="middle" font-size="10.5" fill="#555">risk check</text>
+<text x="302.5" y="198" text-anchor="middle" font-size="10.5" fill="#555">reserve exposure</text>
+<rect x="430" y="130" width="145" height="85" rx="10" fill="#f3f4f6" stroke="#777" stroke-width="2"/>
+<text x="502.5" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">request_queue</text>
+<text x="502.5" y="179" text-anchor="middle" font-size="10.5" fill="#555">SPSC</text>
+<rect x="620" y="130" width="155" height="85" rx="10" fill="#fff7df" stroke="#c5a33a" stroke-width="2"/>
+<text x="697.5" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">OrderGateway</text>
+<text x="697.5" y="179" text-anchor="middle" font-size="10.5" fill="#555">OUCH encode</text>
+<rect x="820" y="130" width="145" height="85" rx="10" fill="#f2f4f6" stroke="#777" stroke-width="2"/>
+<text x="892.5" y="157" text-anchor="middle" font-size="13" font-weight="700" fill="#222">Exchange</text>
+<text x="892.5" y="179" text-anchor="middle" font-size="10.5" fill="#555">TCP / OUCH</text>
+<rect x="430" y="275" width="180" height="65" rx="10" fill="#eaf6eb" stroke="#5b8c5a" stroke-width="2"/>
+<text x="520.0" y="302" text-anchor="middle" font-size="13" font-weight="700" fill="#222">response_queue</text>
+<text x="520.0" y="324" text-anchor="middle" font-size="10.5" fill="#555">SPSC</text>
+<line x1="175" y1="172" x2="212" y2="172" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<line x1="385" y1="172" x2="422" y2="172" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<line x1="575" y1="172" x2="612" y2="172" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<line x1="775" y1="172" x2="812" y2="172" stroke="#444" stroke-width="2.8" marker-end="url(#a)"/>
+<path d="M892 215 V250 H520 V267" fill="none" stroke="#2e7d32" stroke-width="2.6" marker-end="url(#g)"/>
+<path d="M430 307 H305 V235" fill="none" stroke="#2e7d32" stroke-width="2.6" marker-end="url(#g)"/>
+<text x="715" y="250" font-size="9.5" fill="#2e7d32">A / E / C / U / J</text>
+</svg>
